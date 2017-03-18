@@ -153,6 +153,9 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
                 case R.id.But_sound_play_v3: {
                     if (mSound_Play_Record_Helper == null)
                         break;
+                    // see if its safe to play file
+                    if( false == mSound_Play_Record_Helper.isSafeToPlayFile())
+                        break;
                     if (mStartPlaying == false) {
                         mButSound_Start_Stop_Play.setText("Start Play");
                     } else {

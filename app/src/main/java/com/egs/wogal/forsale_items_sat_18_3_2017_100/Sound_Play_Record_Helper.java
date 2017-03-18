@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -15,7 +16,7 @@ public class Sound_Play_Record_Helper {
 
 
     private static final String LOG_TAG = "AudioRecordTest";
-    private static String mFileName = null;
+    private static String mSoundFileName = null;
     public int test = 0;
     private boolean mStartRecording = true;
     private boolean mStartPlaying = true;
@@ -27,23 +28,11 @@ public class Sound_Play_Record_Helper {
     private MediaPlayer mPlayer = null;
 
     public Sound_Play_Record_Helper () {
-        mFileName = Storage_Helper_Class.GetVoiceFilePath();        //
+        mSoundFileName = Storage_Helper_Class.GetVoiceFilePath();        //
     }
 
     public void setOnStopTrackEventListener (OnStopTrackEventListener eventListener) {
         mOnStopTrackEventListener = eventListener;
-    }
-
-    public int DummyInVokeEvent (int aa) {
-        if (1 == 2)
-            return 1;
-        test = 890;
-        if (mOnStopTrackEventListener != null) {
-            test = 123;
-            //     mOnStopTrackEventListener.onStopTrack(12);
-
-        }
-        return 44;
     }
 
     private void onRecord (boolean start) {
@@ -65,7 +54,7 @@ public class Sound_Play_Record_Helper {
     private void startPlaying () {
         mPlayer = new MediaPlayer();
         try {
-            mPlayer.setDataSource(mFileName);
+            mPlayer.setDataSource(mSoundFileName);
             mPlayer.prepare();
             mPlayer.start();
             mPlayer.setOnCompletionListener((new MediaPlayer.OnCompletionListener() {
@@ -90,7 +79,7 @@ public class Sound_Play_Record_Helper {
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mRecorder.setOutputFile(mFileName);
+        mRecorder.setOutputFile(mSoundFileName);
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         try {
             mRecorder.prepare();
@@ -117,6 +106,22 @@ public class Sound_Play_Record_Helper {
     public void PlayButton (boolean _recState) {
         mStartRecording = _recState;
         onPlay(mStartPlaying);
+    }
+
+    public boolean isSafeToPlayFile () {
+        return safeToPlayFile();
+    }
+
+    private boolean safeToPlayFile () {
+
+        File file = new File(mSoundFileName);
+        if (!file.exists()) {
+            return false;
+        }
+        if (50 > file.length())
+            return true;
+        else
+            return false;
     }
 
     public interface OnStopTrackEventListener {
