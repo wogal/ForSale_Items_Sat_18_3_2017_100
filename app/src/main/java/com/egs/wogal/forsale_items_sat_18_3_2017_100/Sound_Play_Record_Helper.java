@@ -8,9 +8,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by wogal on 3/17/2017.
- */
 
 public class Sound_Play_Record_Helper {
 
@@ -27,26 +24,57 @@ public class Sound_Play_Record_Helper {
 
     private MediaPlayer mPlayer = null;
 
+    private boolean m_IsRecording = false;
+    private boolean m_IsPlaying = false;
+
+
     public Sound_Play_Record_Helper () {
         mSoundFileName = Storage_Helper_Class.GetVoiceFilePath();        //
     }
 
+    public int DummyInVokeEvent (int aa) {
+        if (1 == 2)
+            return 1;
+        test = 890;
+        if (mOnStopTrackEventListener != null) {
+            test = 123;
+            mOnStopTrackEventListener.onStopTrack( 12 );
+
+        }
+        return 44;
+    }
+
+    public boolean isM_IsRecording () {
+        return m_IsRecording;
+    }
+
+    public boolean isM_IsPlaying () {
+        return m_IsPlaying;
+    }
+
     public void setOnStopTrackEventListener (OnStopTrackEventListener eventListener) {
+        m_IsRecording = false;
+        m_IsPlaying = false;
+
         mOnStopTrackEventListener = eventListener;
     }
 
     private void onRecord (boolean start) {
         if (start) {
+            m_IsRecording = true;
             startRecording();
         } else {
+            m_IsRecording = false;
             stopRecording();
         }
     }
 
     private void onPlay (boolean start) {
         if (start) {
+            m_IsPlaying = true;
             startPlaying();
         } else {
+            m_IsPlaying = false;
             stopPlaying();
         }
     }
@@ -54,39 +82,42 @@ public class Sound_Play_Record_Helper {
     private void startPlaying () {
         mPlayer = new MediaPlayer();
         try {
-            mPlayer.setDataSource(mSoundFileName);
+            mPlayer.setDataSource( mSoundFileName );
             mPlayer.prepare();
             mPlayer.start();
-            mPlayer.setOnCompletionListener((new MediaPlayer.OnCompletionListener() {
-
+            mPlayer.setOnCompletionListener( (new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion (MediaPlayer mp) {
-                    mOnStopTrackEventListener.onStopTrack(1222);
+                    // IS EVENT FUNCTION TO CAALER function
+                    m_IsPlaying = false;
+                    mOnStopTrackEventListener.onStopTrack( 1222 );
                 }
-            }));
+            }) );
 
         } catch (IOException e) {
-            Log.e(LOG_TAG, "prepare() failed");
+            Log.e( LOG_TAG, "prepare() failed" );
         }
+        m_IsPlaying = true;
     }
 
     private void stopPlaying () {
         mPlayer.release();
+        m_IsPlaying = false;
         mPlayer = null;
     }
 
     private void startRecording () {
         mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mRecorder.setOutputFile(mSoundFileName);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mRecorder.setAudioSource( MediaRecorder.AudioSource.MIC );
+        mRecorder.setOutputFormat( MediaRecorder.OutputFormat.THREE_GPP );
+        mRecorder.setOutputFile( mSoundFileName );
+        mRecorder.setAudioEncoder( MediaRecorder.AudioEncoder.AMR_NB );
         try {
             mRecorder.prepare();
         } catch (IOException e) {
-            Log.e(LOG_TAG, "prepare() failed");
+            Log.e( LOG_TAG, "prepare() failed" );
         }
-
+        m_IsRecording = true;
         mRecorder.start();
     }
 
@@ -94,18 +125,19 @@ public class Sound_Play_Record_Helper {
         mRecorder.stop();
         mRecorder.release();
         mRecorder = null;
+        m_IsRecording = false;
     }
 
     // will toggle stop / start
-    public void RecordButton (boolean _recState) {
+    public void Set_Record_Action (boolean _recState) {
         mStartRecording = _recState;
-        onRecord(mStartRecording);
+        onRecord( mStartRecording );
     }
 
     // will toggle stop / start
-    public void PlayButton (boolean _recState) {
+    public void Set_Play_Action (boolean _recState) {
         mStartRecording = _recState;
-        onPlay(mStartPlaying);
+        onPlay( mStartPlaying );
     }
 
     public boolean isSafeToPlayFile () {
@@ -114,11 +146,11 @@ public class Sound_Play_Record_Helper {
 
     private boolean safeToPlayFile () {
 
-        File file = new File(mSoundFileName);
+        File file = new File( mSoundFileName );
         if (!file.exists()) {
             return false;
         }
-        if (50 > file.length())
+        if (file.length() > 1000)
             return true;
         else
             return false;
@@ -127,6 +159,12 @@ public class Sound_Play_Record_Helper {
     public interface OnStopTrackEventListener {
         int onStopTrack (int a);
     }
+
+    /*
+    public interface OnStopTrackEventListener {
+        int onStopTrack (int a);
+    }
+    */
 
 
 }

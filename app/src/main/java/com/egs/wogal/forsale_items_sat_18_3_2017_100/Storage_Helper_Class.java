@@ -20,14 +20,13 @@ public class Storage_Helper_Class {
     private Context mContext;
 
 
-
     public Storage_Helper_Class (Context base) {
         mContext = base;
     }
 
     public static String GetVoiceFilePath () {
         String imageFileName = "Wogals_Voice_0";
-        File strorageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File strorageDirectory = Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES );
         //    File Tmp_image = File.createTempFile(imageFileName, ".jpg", strorageDirectory);
         String AbsFilePath = strorageDirectory + "/wogals_voice.3gp";
         return AbsFilePath;
@@ -36,7 +35,7 @@ public class Storage_Helper_Class {
     public static String MakeAbsoulteFromPathAndFile (String _path, String _filename) {
         String fullAbsPath = "";
         try {
-            fullAbsPath = MakeOrCheck_If_Folder_Exists(_path);
+            fullAbsPath = MakeOrCheck_If_Folder_Exists( _path );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,14 +47,14 @@ public class Storage_Helper_Class {
         String state;
         // see if fisrt char in path is "/" if not make sure it starts and ends with a "/"
         // remove all "/"  ( if eny exists )
-        path = path.replaceAll("/", "");
+        path = path.replaceAll( "/", "" );
         // now add "/" to start & end of path
-        path = new StringBuilder(path).insert(0, "/").toString();
-        path = new StringBuilder(path).insert(path.length(), "/").toString();
+        path = new StringBuilder( path ).insert( 0, "/" ).toString();
+        path = new StringBuilder( path ).insert( path.length(), "/" ).toString();
         state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
+        if (Environment.MEDIA_MOUNTED.equals( state )) {
             File Root = Environment.getExternalStorageDirectory();
-            File Dir = new File(Root.getAbsolutePath() + path);
+            File Dir = new File( Root.getAbsolutePath() + path );
             if (!Dir.exists()) {
                 Dir.mkdir();
             }
@@ -68,7 +67,7 @@ public class Storage_Helper_Class {
     public String SgetExternalStorageDirectory () {
         File path;
         String str;
-        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        path = Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES );
         str = path.getAbsolutePath();
         return (str);
     }
@@ -82,14 +81,14 @@ public class Storage_Helper_Class {
 //    }
 
     public void copy (File src, File dst) throws IOException {
-        InputStream in = new FileInputStream(src);
-        OutputStream out = new FileOutputStream(dst);
+        InputStream in = new FileInputStream( src );
+        OutputStream out = new FileOutputStream( dst );
 
         // Transfer bytes from in to out
         byte[] buf = new byte[1024];
         int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
+        while ((len = in.read( buf )) > 0) {
+            out.write( buf, 0, len );
         }
         in.close();
         out.close();
