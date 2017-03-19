@@ -2,6 +2,7 @@ package com.egs.wogal.forsale_items_sat_18_3_2017_100;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
@@ -53,6 +54,9 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
     // Alert Dialog_Sound Vars
     private AlertDialog Dialog_SoundRecord;
     private View mViewSound;
+
+    private CountDownTimer mmCountDownTimer;
+
 
     private Handler handler = new Handler() {
         @Override
@@ -260,8 +264,23 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
                     mButSound_Start_Stop_Play.setText( "Start Playing" );
                     mButSound_Start_Stop_Record.setText( "Start Recoding" );
 
-                    mSound_Play_Record_Helper = new Sound_Play_Record_Helper();
+                    /*
+                    mmCountDownTimer = new CountDownTimer( 0xc,22) {
+                        @Override
+                        public void onTick (long millisUntilFinished) {
 
+                        }
+
+                        @Override
+                        public void onFinish () {
+
+                        }
+                    };
+
+                    */
+
+
+                    mSound_Play_Record_Helper = new Sound_Play_Record_Helper();
                     // set default values
                     pb.setVisibility( View.GONE );
                     if (mSound_Play_Record_Helper.isSafeToPlayFile() == false) {
@@ -287,7 +306,7 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
                             mButSound_Start_Stop_Record.setText( "Start Recoding" );
                             mButSound_Start_Stop_Play.setEnabled( true );
                             mButSound_Start_Stop_Play.setText( "Start Play" );
-                    //        Toast.makeText( getApplicationContext(), " Wogal Play Stoped -> " + a, Toast.LENGTH_LONG ).show();
+                            //        Toast.makeText( getApplicationContext(), " Wogal Play Stoped -> " + a, Toast.LENGTH_LONG ).show();
                             pb.setVisibility( View.GONE );
                             return 10;
                         }
