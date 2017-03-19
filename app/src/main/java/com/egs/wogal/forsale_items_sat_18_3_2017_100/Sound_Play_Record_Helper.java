@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class Sound_Play_Record_Helper {
+public class Sound_Play_Record_Helper implements Runnable {
 
 
     private static final String LOG_TAG = "AudioRecordTest";
@@ -20,7 +20,9 @@ public class Sound_Play_Record_Helper {
 
 
     private MediaRecorder mRecorder = null;
+
     private OnStopTrackEventListener mOnStopTrackEventListener;
+    private OnAmplitudeEventCallBack mOnMicAmplitudeEventListner;
 
     private MediaPlayer mPlayer = null;
 
@@ -30,6 +32,16 @@ public class Sound_Play_Record_Helper {
 
     public Sound_Play_Record_Helper () {
         mSoundFileName = Storage_Helper_Class.GetVoiceFilePath();        //
+    }
+
+    public void setOnAmplitudeEventListener (OnAmplitudeEventCallBack micAmplitudeCallBack) {
+        mOnMicAmplitudeEventListner = micAmplitudeCallBack;
+    }
+
+    public void setOnStopTrackEventListener (OnStopTrackEventListener eventListener) {
+        m_IsRecording = false;
+        m_IsPlaying = false;
+        mOnStopTrackEventListener = eventListener;
     }
 
     public int DummyInVokeEvent (int aa) {
@@ -52,22 +64,6 @@ public class Sound_Play_Record_Helper {
         return m_IsPlaying;
     }
 
-    public void setOnStopTrackEventListener (OnStopTrackEventListener eventListener) {
-        m_IsRecording = false;
-        m_IsPlaying = false;
-
-        mOnStopTrackEventListener = eventListener;
-    }
-
-    private void onRecord (boolean start) {
-        if (start) {
-            m_IsRecording = true;
-            startRecording();
-        } else {
-            m_IsRecording = false;
-            stopRecording();
-        }
-    }
 
     private void onPlay (boolean start) {
         if (start) {
@@ -91,6 +87,8 @@ public class Sound_Play_Record_Helper {
                     // IS EVENT FUNCTION TO CAALER function
                     m_IsPlaying = false;
                     mOnStopTrackEventListener.onStopTrack( 1222 );
+                    //    setOnAmplitudeEventListener.GotMicAmplitude( 60 );
+
                 }
             }) );
 
@@ -134,11 +132,6 @@ public class Sound_Play_Record_Helper {
         onRecord( mStartRecording );
     }
 
-    // will toggle stop / start
-    public void Set_Play_Action (boolean _recState) {
-        mStartRecording = _recState;
-        onPlay( mStartPlaying );
-    }
 
     public boolean isSafeToPlayFile () {
         return safeToPlayFile();
@@ -156,15 +149,71 @@ public class Sound_Play_Record_Helper {
             return false;
     }
 
+    private void MM_Wogals_Thread () {
+        Runnable rrrrrrr = new Runnable() {
+            @Override
+            public void run () {
+                synchronized (this) {
+                    int a = (int) System.currentTimeMillis();
+                    try {
+                        for (int cnt = 0; cnt != 10000; cnt++) {
+                            Thread.sleep( 30 );
+                            a = mRecorder.getMaxAmplitude();
+                            mOnMicAmplitudeEventListner.GotMicAmplitude( " Run -> ", a );
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        Thread wglThread = new Thread( rrrrrrr );
+        wglThread.start();
+    }
+
+
+    private void onRecord (boolean start)   {
+        if (start) {
+            m_IsRecording = true;
+            startRecording();
+            try {
+                Thread.sleep( 10 );
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            MM_Wogals_Thread();
+        } else {
+            m_IsRecording = false;
+            stopRecording();
+        }
+    }
+
+
+    // will toggle stop / start
+    public void Set_Play_Action (boolean _recState) {
+        mStartRecording = _recState;
+        onPlay( mStartPlaying );
+    }
+
+    @Override
+    public void run () {
+
+    }
+
     public interface OnStopTrackEventListener {
         int onStopTrack (int a);
     }
 
-    /*
-    public interface OnStopTrackEventListener {
-        int onStopTrack (int a);
+
+    public interface OnAmplitudeEventCallBack {
+        int GotMicAmplitude (String _str, int _amp);
     }
-    */
 
 
 }
+
+
+
+
+

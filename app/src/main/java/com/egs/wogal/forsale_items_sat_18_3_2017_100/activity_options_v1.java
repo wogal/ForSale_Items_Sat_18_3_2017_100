@@ -2,6 +2,8 @@ package com.egs.wogal.forsale_items_sat_18_3_2017_100;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,6 +17,8 @@ import android.widget.Toast;
 
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static com.egs.wogal.forsale_items_sat_18_3_2017_100.R.id.text_view_sales_item_name_v2;
+import static java.lang.Math.log;
+import static java.lang.Math.pow;
 
 // import static android.view.KeyEvent.KEYCODE_ENTER;
 // import static com.egs.wogal.forsale_items_sat_18_3_2017_100.R.id.text_view_sales_item_name_v2;
@@ -37,6 +41,7 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
     private Button mBut_Sound_Done;
     private Button mBut_Sound_Stop;
 
+
     private Sound_Play_Record_Helper mSound_Play_Record_Helper = null;
     private ProgressBar pb;
     // Alert Dialog_ItemName Vars
@@ -48,6 +53,21 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
     // Alert Dialog_Sound Vars
     private AlertDialog Dialog_SoundRecord;
     private View mViewSound;
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage (Message msg) {
+            String _str = "----";
+            int scalednum;
+            int Max = 255;
+            int _amp = msg.arg1;
+            scalednum = (int) (log( _amp ) / log( pow( 2, 32 ) ) * Max);
+            //  scalednum = value/ (Integer.MAX_VALUE/255);
+            //  scalednum = _amp % Max + 1;
+            pb.setMax( 200 );
+            pb.setProgress( scalednum );
+        }
+    };
 
 
     @Override
@@ -179,7 +199,7 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
                         break;
 
                     if (mSound_Play_Record_Helper.isM_IsRecording() == true) {
-                        // im already recordning so pls stop me & re enabile the buttons
+                        // im already recording so pls stop me & re enable the buttons
                         mSound_Play_Record_Helper.Set_Record_Action( false );
 
                         mButSound_Start_Stop_Play.setText( "Start Playing" );
@@ -187,14 +207,18 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
 
                         mButSound_Start_Stop_Record.setText( "Start Recoding" );
                         mButSound_Start_Stop_Record.setEnabled( true );
+                        // Dis enable progress bar
+                        pb.setVisibility( View.GONE );
                     } else {
-                        // i havent even started recording to lets go
+                        // i haven't even started recording to lets go
                         mSound_Play_Record_Helper.Set_Record_Action( true );
                         mButSound_Start_Stop_Record.setText( "Stop Recoding" );
                         mButSound_Start_Stop_Record.setEnabled( true );
                         // disable play
                         mButSound_Start_Stop_Play.setText( "-  -" );
                         mButSound_Start_Stop_Play.setEnabled( false );
+                        // enable progress bar
+                        pb.setVisibility( View.VISIBLE );
                     }
                     break;
                 }
@@ -239,12 +263,22 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
                     mSound_Play_Record_Helper = new Sound_Play_Record_Helper();
 
                     // set default values
-
+                    pb.setVisibility( View.GONE );
                     if (mSound_Play_Record_Helper.isSafeToPlayFile() == false) {
                         // disable play button
                         mButSound_Start_Stop_Play.setEnabled( false );
                         mButSound_Start_Stop_Play.setText( "----" );
                     }
+                    mSound_Play_Record_Helper.setOnAmplitudeEventListener( new Sound_Play_Record_Helper.OnAmplitudeEventCallBack() {
+                        @Override
+                        public int GotMicAmplitude (String _str, int _amp) {
+                            Message message = Message.obtain();
+                            message.arg1 = _amp;
+                            handler.sendMessageAtFrontOfQueue( message );
+
+                            return 0;
+                        }
+                    } );
 
                     mSound_Play_Record_Helper.setOnStopTrackEventListener( new Sound_Play_Record_Helper.OnStopTrackEventListener() {
                         @Override
@@ -253,11 +287,11 @@ public class activity_options_v1 extends AppCompatActivity implements View.OnCli
                             mButSound_Start_Stop_Record.setText( "Start Recoding" );
                             mButSound_Start_Stop_Play.setEnabled( true );
                             mButSound_Start_Stop_Play.setText( "Start Play" );
-                            Toast.makeText( getApplicationContext(), " Wogal Ret Vle -> " + a, Toast.LENGTH_LONG ).show();
+                    //        Toast.makeText( getApplicationContext(), " Wogal Play Stoped -> " + a, Toast.LENGTH_LONG ).show();
+                            pb.setVisibility( View.GONE );
                             return 10;
                         }
                     } );
-
                     Dialog_SoundRecord = mBuilderSound.create();
                     Dialog_SoundRecord.show();
                     break;
